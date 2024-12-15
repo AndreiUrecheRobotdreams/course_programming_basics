@@ -1,42 +1,46 @@
-﻿namespace Homework
-using System;
-
 class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
-        // Pro dvě osoby budeme vykonávat stejný postup
-        for (int i = 1; i <= 2; i++)
+        // Pole typu IDriveable[]
+        IDriveable[] driveables = new IDriveable[150];
+
+        // Naplnění pole objekty typu Car, Motorcycle a Truck s různými Id
+        for (int i = 0; i < 50; i++)
         {
-            // Načítání údajů pro osobu
-            Console.WriteLine($"Zadejte údaje pro osobu {i}:");
+            driveables[i] = new Car(i + 1, 4);
+            driveables[i + 50] = new Motorcycle(i + 51, i % 2 == 0);
+            driveables[i + 100] = new Truck(i + 101, 5000 + i * 100);
+        }
 
-            // Získání údajů od uživatele
-            Console.Write("Jméno: ");
-            string firstName = Console.ReadLine();
+        // Cyklus, který zavolá metodu Drive() na každém objektu v kolekci
+        foreach (var vehicle in driveables)
+        {
+            vehicle.Drive();
+        }
 
-            Console.Write("Příjmení: ");
-            string lastName = Console.ReadLine();
+        // Pole typu Vehicle[]
+        Vehicle[] vehicles = new Vehicle[60];
 
-            Console.Write("Věk: ");
-            int age = int.Parse(Console.ReadLine());
+        // Naplnění pole objekty typu Car, Motorcycle a Truck s různými Id
+        for (int i = 0; i < 30; i++)
+        {
+            vehicles[i] = new Car(i + 1, 4);
+            vehicles[i + 30] = new Motorcycle(i + 31, i % 2 == 0);
+            vehicles[i + 50] = new Truck(i + 51, 5000 + i * 100);
+        }
 
-            Console.Write("Váha (kg): ");
-            double weight = double.Parse(Console.ReadLine());
+        // Cyklus, který zavolá abstraktní a virtuální metody pro každý objekt
+        foreach (var vehicle in vehicles)
+        {
+            vehicle.StartEngine();
+            vehicle.StopEngine();
 
-            Console.Write("Výška (cm): ");
-            double height = double.Parse(Console.ReadLine());
-
-            // Zobrazit uživatelské informace
-            Console.WriteLine($"{firstName} {lastName} je starý(á) {age} let. Váží {weight} kilogramů a je {height} centimetrů vysoký/á.");
-
-            // Výpočet BMI
-            double heightInMeters = height / 100; // Převod výšky na metry
-            double bmi = weight / (heightInMeters * heightInMeters); // Vzorec pro BMI
-
-            // Zobrazení BMI
-            Console.WriteLine($"BMI: {bmi:F2}");
-            Console.WriteLine(); // Prázdný řádek mezi jednotlivými uživatelskými vstupy
+            // Zjištění typu a volání specifických metod
+            if (vehicle is Truck truck)
+            {
+                truck.LoadCargo();  // Volání specifické metody pro Truck
+            }
         }
     }
 }

@@ -1,0 +1,15 @@
+using System;
+
+public abstract class Vehicle
+{
+    public int Id { get; set; }  // Identifikátor vozidla
+
+    // Abstraktní metoda, která musí být implementována v dědících třídách
+    public abstract void StartEngine();
+
+    // Virtuální metoda, kterou lze přepsat v dědících třídách
+    public virtual void StopEngine()
+    {
+        Console.WriteLine("Engine stopped");
+    }
+}
