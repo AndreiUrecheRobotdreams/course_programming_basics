@@ -1,6 +1,6 @@
 
 
-namespace Program.cs
+namespace Book.cs
 {
     class Program
     {
@@ -21,7 +21,7 @@ namespace Program.cs
             Console.WriteLine();
 
             // Vytvoření objektu třídy Book
-            Book book1 = new Book("Harry Potter And The Philosopher's Stone", "J.K. Rowling", 320);
+            Book book1 = new Book("Harry Potter And The Philosopher's Stone", "J.K. Rowling", 429);
             Book book2 = new Book("1984", "George Orwell", 328);
 
             // Použití metod třídy Book
@@ -33,4 +33,4 @@ namespace Program.cs
             book2.DisplayProgress();
         }
     }
-} 
+}
