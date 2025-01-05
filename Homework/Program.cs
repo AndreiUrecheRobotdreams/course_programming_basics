@@ -1,42 +1,81 @@
-﻿namespace Homework
-using System;
+using Newtonsoft.Json;
 
-class Program
+namespace Program.cs
 {
-    static void Main(string[] args)
+    class Program
     {
-        // Pro dvě osoby budeme vykonávat stejný postup
-        for (int i = 1; i <= 2; i++)
+        private static readonly string apiKey = "3a938f3d47264a3a9ed191109250501"; 
+        private static readonly string baseUrl = "http://api.weatherapi.com/v1/current.json";
+
+        static async Task Main(string[] args)
         {
-            // Načítání údajů pro osobu
-            Console.WriteLine($"Zadejte údaje pro osobu {i}:");
+            Console.WriteLine("Zadejte město pro zjištění počasí:");
+            string city = Console.ReadLine();
 
-            // Získání údajů od uživatele
-            Console.Write("Jméno: ");
-            string firstName = Console.ReadLine();
+            var weatherData = await GetWeatherDataAsync(city);
 
-            Console.Write("Příjmení: ");
-            string lastName = Console.ReadLine();
-
-            Console.Write("Věk: ");
-            int age = int.Parse(Console.ReadLine());
-
-            Console.Write("Váha (kg): ");
-            double weight = double.Parse(Console.ReadLine());
-
-            Console.Write("Výška (cm): ");
-            double height = double.Parse(Console.ReadLine());
-
-            // Zobrazit uživatelské informace
-            Console.WriteLine($"{firstName} {lastName} je starý(á) {age} let. Váží {weight} kilogramů a je {height} centimetrů vysoký/á.");
-
-            // Výpočet BMI
-            double heightInMeters = height / 100; // Převod výšky na metry
-            double bmi = weight / (heightInMeters * heightInMeters); // Vzorec pro BMI
-
-            // Zobrazení BMI
-            Console.WriteLine($"BMI: {bmi:F2}");
-            Console.WriteLine(); // Prázdný řádek mezi jednotlivými uživatelskými vstupy
+            if (weatherData != null)
+            {
+                Console.WriteLine($"Počasí v městě {city}:");
+                Console.WriteLine($"Teplota: {weatherData.Current.TempC}°C");
+                Console.WriteLine($"Stav počasí: {weatherData.Current.Condition.Text}");
+                Console.WriteLine($"Vlhkost: {weatherData.Current.Humidity}%");
+                Console.WriteLine($"Vítr: {weatherData.Current.WindKph} km/h");
+            }
+            else
+            {
+                Console.WriteLine("Nepodařilo se načíst data.");
+            }
         }
+
+        // Metoda pro stažení dat
+        public static async Task<WeatherResponse> GetWeatherDataAsync(string city)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    // Sestavení URL s parametry
+                    string url = $"{baseUrl}?key={apiKey}&q={city}&aqi=no";
+                    HttpResponseMessage response = await client.GetAsync(url);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string json = await response.Content.ReadAsStringAsync();
+                        var weatherResponse = JsonConvert.DeserializeObject<WeatherResponse>(json);
+                        return weatherResponse;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Chyba při volání API.");
+                        return null;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Došlo k chybě: {ex.Message}");
+                    return null;
+                }
+            }
+        }
+    }
+
+    // Třída pro deserializaci odpovědi z API
+    public class WeatherResponse
+    {
+        public CurrentWeather Current { get; set; }
+    }
+
+    public class CurrentWeather
+    {
+        public double TempC { get; set; }
+        public Condition Condition { get; set; }
+        public int Humidity { get; set; }
+        public double WindKph { get; set; }
+    }
+
+    public class Condition
+    {
+        public string Text { get; set; }
     }
 }
