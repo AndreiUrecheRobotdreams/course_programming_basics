@@ -1,4 +1,4 @@
-Namespace Program.cs
+
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -66,7 +66,7 @@ public class Catalog
                 AddProduct(product);
             }
         }
-        catch (JsonException ex)
+        catch (System.Text.Json.JsonException ex)
         {
             Console.WriteLine("Chyba při deserializaci JSON: " + ex.Message);
         }
@@ -122,3 +122,4 @@ class Program
         }
     }
 }
+
