@@ -1,4 +1,4 @@
-public interface IDriveable
+interface IDriveable
 {
     void Drive();
 }
