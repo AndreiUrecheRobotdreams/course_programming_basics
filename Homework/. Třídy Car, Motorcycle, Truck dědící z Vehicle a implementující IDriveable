@@ -1,88 +1,24 @@
-public class Car : Vehicle, IDriveable
+class Car : Vehicle, IDriveable
 {
-    public int NumberOfDoors { get; set; }  // Specifická vlastnost pro Car
+    public string Brand { get; set; }
 
-    public Car(int id, int numberOfDoors)
+    public Car(int id, string brand) : base(id)
     {
-        Id = id;
-        NumberOfDoors = numberOfDoors;
+        Brand = brand;
     }
 
-    // Implementace abstraktní metody StartEngine
+    public override void DisplayDetails()
+    {
+        Console.WriteLine($"Car {Id} - Brand: {Brand}");
+    }
+
     public override void StartEngine()
     {
-        Console.WriteLine("Car engine started");
+        Console.WriteLine($"Car {Id} engine started. Vroom Vroom!");
     }
 
-    // Obohacení virtuální metody StopEngine
-    public override void StopEngine()
-    {
-        base.StopEngine();
-        Console.WriteLine("Car engine is off");
-    }
-
-    // Implementace metody Drive z rozhraní IDriveable
     public void Drive()
     {
-        Console.WriteLine("Car is driving");
-    }
-}
-
-public class Motorcycle : Vehicle, IDriveable
-{
-    public bool HasSidecar { get; set; }  // Specifická vlastnost pro Motorcycle
-
-    public Motorcycle(int id, bool hasSidecar)
-    {
-        Id = id;
-        HasSidecar = hasSidecar;
-    }
-
-    // Implementace abstraktní metody StartEngine
-    public override void StartEngine()
-    {
-        Console.WriteLine("Motorcycle engine started");
-    }
-
-    // Implementace metody Drive z rozhraní IDriveable
-    public void Drive()
-    {
-        Console.WriteLine("Motorcycle is driving");
-    }
-}
-
-public class Truck : Vehicle, IDriveable
-{
-    public double LoadCapacity { get; set; }  // Specifická vlastnost pro Truck
-
-    public Truck(int id, double loadCapacity)
-    {
-        Id = id;
-        LoadCapacity = loadCapacity;
-    }
-
-    // Implementace abstraktní metody StartEngine
-    public override void StartEngine()
-    {
-        Console.WriteLine("Truck engine started");
-    }
-
-    // Obohacení virtuální metody StopEngine
-    public override void StopEngine()
-    {
-        base.StopEngine();
-        Console.WriteLine("Truck engine is off");
-    }
-
-    // Implementace metody Drive z rozhraní IDriveable
-    public void Drive()
-    {
-        Console.WriteLine("Truck is driving");
-    }
-
-    // Specifická metoda pro Truck
-    public void LoadCargo()
-    {
-        Console.WriteLine("Loading cargo onto the truck");
+        Console.WriteLine($"Car {Id} is driving.");
     }
 }
