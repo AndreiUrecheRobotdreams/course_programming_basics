@@ -1,81 +1,73 @@
-using Newtonsoft.Json;
+using Moq;
+using NUnit.Framework;
+using System.Threading.Tasks;
+using WeatherApp;
 
-namespace Program.cs
+namespace WeatherApp.Tests
 {
-    class Program
+    [TestFixture]
+    public class WeatherAppTests
     {
-        private static readonly string apiKey = "3a938f3d47264a3a9ed191109250501"; 
-        private static readonly string baseUrl = "http://api.weatherapi.com/v1/current.json";
+        private Mock<IWeatherService> weatherServiceMock;
+        private WeatherApp.WeatherApp weatherApp;
 
-        static async Task Main(string[] args)
+        [SetUp]
+        public void SetUp()
         {
-            Console.WriteLine("Zadejte město pro zjištění počasí:");
-            string city = Console.ReadLine();
-
-            var weatherData = await GetWeatherDataAsync(city);
-
-            if (weatherData != null)
-            {
-                Console.WriteLine($"Počasí v městě {city}:");
-                Console.WriteLine($"Teplota: {weatherData.Current.TempC}°C");
-                Console.WriteLine($"Stav počasí: {weatherData.Current.Condition.Text}");
-                Console.WriteLine($"Vlhkost: {weatherData.Current.Humidity}%");
-                Console.WriteLine($"Vítr: {weatherData.Current.WindKph} km/h");
-            }
-            else
-            {
-                Console.WriteLine("Nepodařilo se načíst data.");
-            }
+            weatherServiceMock = new Mock<IWeatherService>();
+            weatherApp = new WeatherApp.WeatherApp(weatherServiceMock.Object);
         }
 
-        // Metoda pro stažení dat
-        public static async Task<WeatherResponse> GetWeatherDataAsync(string city)
+        [Test]
+        public async Task DisplayWeatherAsync_WhenWeatherDataIsAvailable_ShouldDisplayWeather()
         {
-            using (HttpClient client = new HttpClient())
+            // Arrange
+            var city = "Prague";
+            var mockWeatherResponse = new WeatherResponse
             {
-                try
+                Current = new CurrentWeather
                 {
-                    // Sestavení URL s parametry
-                    string url = $"{baseUrl}?key={apiKey}&q={city}&aqi=no";
-                    HttpResponseMessage response = await client.GetAsync(url);
+                    TempC = 10.0,
+                    Condition = new Condition { Text = "Clear" },
+                    Humidity = 60,
+                    WindKph = 15
+                }
+            };
+            weatherServiceMock.Setup(ws => ws.GetWeatherDataAsync(city)).ReturnsAsync(mockWeatherResponse);
 
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string json = await response.Content.ReadAsStringAsync();
-                        var weatherResponse = JsonConvert.DeserializeObject<WeatherResponse>(json);
-                        return weatherResponse;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Chyba při volání API.");
-                        return null;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Došlo k chybě: {ex.Message}");
-                    return null;
-                }
-            }
+            // Act
+            await weatherApp.DisplayWeatherAsync(city);
+
+            // Assert
+            weatherServiceMock.Verify(ws => ws.GetWeatherDataAsync(city), Times.Once);
         }
-    }
 
-    // Třída pro deserializaci odpovědi z API
-    public class WeatherResponse
-    {
-        public CurrentWeather Current { get; set; }
-    }
+        [Test]
+        public async Task DisplayWeatherAsync_WhenWeatherDataIsNotAvailable_ShouldDisplayErrorMessage()
+        {
+            // Arrange
+            var city = "UnknownCity";
+            weatherServiceMock.Setup(ws => ws.GetWeatherDataAsync(city)).ReturnsAsync((WeatherResponse)null);
 
-    public class CurrentWeather
-    {
-        public double TempC { get; set; }
-        public Condition Condition { get; set; }
-        public int Humidity { get; set; }
-        public double WindKph { get; set; }
-    }
+            // Act
+            await weatherApp.DisplayWeatherAsync(city);
 
-    public class Condition
-    {
-        public string Text { get; set; }
+            // Assert
+            weatherServiceMock.Verify(ws => ws.GetWeatherDataAsync(city), Times.Once);
+        }
+
+        [Test]
+        public async Task GetWeatherDataAsync_WhenApiFails_ShouldReturnNull()
+        {
+            // Arrange
+            var city = "Prague";
+            weatherServiceMock.Setup(ws => ws.GetWeatherDataAsync(city)).ThrowsAsync(new System.Exception("API error"));
+
+            // Act
+            var result = await weatherServiceMock.Object.GetWeatherDataAsync(city);
+
+            // Assert
+            Assert.IsNull(result);
+        }
     }
 }
